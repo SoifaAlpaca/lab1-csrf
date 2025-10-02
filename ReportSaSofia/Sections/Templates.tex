@@ -1,0 +1,116 @@
+\section{Template}
+
+\begin{table}[h]
+    \centering
+    \caption{Anti-Aliasing Filter Specifications and Achieved Performance}
+    \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}X
+                               >{\centering\arraybackslash}X
+                               >{\centering\arraybackslash}X
+                               >{\centering\arraybackslash}X}
+        \toprule
+        \textbf{Specification} & \textbf{Target} & 
+        \textbf{2\textsuperscript{nd}-Order Butterworth} & 
+        \textbf{3\textsuperscript{rd}-Order Butterworth} \\
+        \midrule
+        Pass-band ripple $A_\mathrm{max}$ (dB)   & $\le 0.5$ & 0.5 & 0.5 \\
+        \midrule
+        Stop-band attenuation $A_\mathrm{min}$ (dB) & $\ge 80$ & 90 & 90 \\
+        \midrule
+        Pass-band edge $f_p$ (kHz) & 20 & 20 & 20 \\
+        \midrule
+        Stop-band edge $f_s'$ (MHz)\footnotemark[1] & 4.62 & 4.62 & 4.62 \\
+        \midrule
+        Transition ratio $f_s'/f_p$ & 231 & 231 & 231 \\
+        \midrule
+        Filter order $N$ & — & 2 (chosen) & 3 (strict) \\
+        \midrule
+        Theoretical in-band group delay\footnotemark[2] ($\mu$s) & — & 7.9 & 11.8 \\
+        \bottomrule
+    \end{tabularx}
+    \label{tab:aa_filter_specs}
+\end{table}
+
+\footnotetext[1]{First stop-band edge equals $f_s - f_p$, where $f_s$ is the modulator sampling frequency (\SI{4.64}{\mega\hertz}).}
+\footnotetext[2]{Approximate group delay evaluated at \(\omega_p\) for a Butterworth LPF: \(\tau_g \approx N/(2\pi f_p)\).}
+%TODO FOTOS LADO A LADO
+\begin{figure}[H]
+    \centering
+    \includegraphics*[scale = 0.05]{Images/NovaFctHor.png}
+    \caption{Logo da Nova FCT}
+    \label{wrap-fig:1}
+\end{figure}
+
+%Equation System
+\begin{equation}
+    \begin{cases}
+    
+        R( 283,15 ) = 1,998\cdot 10^4 ~\Omega \\
+        R( 298,15 ) = 10^4 ~\Omega\\
+        R( 313,15 ) = 0,5282 \cdot 10^4 ~\Omega\\
+    
+    \end{cases}
+    \Leftrightarrow
+    \begin{cases}
+        A = 1,3092 \cdot 10^{-3}\\
+        B = 2,1439 \cdot 10^{-4}\\
+        C = 9,6600 \cdot 10^{-8}\\
+    
+    \end{cases}
+\end{equation}
+
+\begin{lstlisting}[language=Matlab, caption=Matlab code example]
+    Fdz
+    printf('Polos: ');
+    PlFdz
+    %figure(3);
+    pzmap(Fdz);
+    %figure(4);
+    step(Fdz);
+\end{lstlisting}
+
+\begin{itemize}
+    \item item 1
+    
+    ...
+    \item item n 
+\end{itemize}
+
+\begin{enumerate}
+    \item Butterworth
+
+    \item Chebyshev
+    
+    \item Elliptic
+    
+    \item Bessel
+    
+    In the application in study, the group delay is a critical factor because the ECG signal is a time-domain signal, and the phase distortion can lead to a misinterpretation of the signal. So it is safe to say that the Bessel filter is the best choice for this application.
+\end{enumerate}
+
+\begin{figure}[H]   
+\begin{centering}
+    \begin{tikzpicture}[node distance=2cm]
+
+        % Blocks
+        \node (ntc) [block] {NTC Resistance};
+        \node (ohms) [block, right of=ntc, xshift=2.5cm] {Ohms to Voltage};
+        \node (mcu) [block, right of=ohms, xshift=1.5cm] {MCU};
+        \node (temp) [block, right of=mcu, xshift=1cm] {Temperature};
+    
+        % Arrows
+        \draw [arrow] (ntc) -- (ohms);
+        \draw [arrow] (ohms) -- (mcu);
+        \draw [arrow] (mcu) -- (temp);
+    
+    \end{tikzpicture}
+    
+    \caption{ NTC's block diagram }
+    \label{fig:NTCBlock}
+
+\end{centering}
+\end{figure}
+
+
+Referece like this\textsuperscript{\cite{ESP32-datasheet}}
+% Add citation commands where necessary
+% Example: \cite{reference_label}
