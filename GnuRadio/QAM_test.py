@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Not titled yet
+# Title: QAM tests
 # GNU Radio version: 3.10.12.0
 
 from PyQt5 import Qt
@@ -13,6 +13,7 @@ from gnuradio import qtgui
 from PyQt5 import QtCore
 from gnuradio import analog
 from gnuradio import blocks
+import pmt
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
@@ -28,12 +29,12 @@ import threading
 
 
 
-class Lab0(gr.top_block, Qt.QWidget):
+class QAM_test(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
+        gr.top_block.__init__(self, "QAM tests", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Not titled yet")
+        self.setWindowTitle("QAM tests")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -51,7 +52,7 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "Lab0")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "QAM_test")
 
         try:
             geometry = self.settings.value("geometry")
@@ -73,6 +74,8 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.variable_a2 = variable_a2 = 0
         self.variable_a1 = variable_a1 = 7
         self.samp_rate = samp_rate = 768000
+        self.filter_transition = filter_transition = 500
+        self.Sig_band = Sig_band = 20000
         self.Base_Band = Base_Band = 1000
 
         ##################################################
@@ -82,9 +85,6 @@ class Lab0(gr.top_block, Qt.QWidget):
         self._variable_y_freq_range = qtgui.Range(0, 5000, 1, 250, 200)
         self._variable_y_freq_win = qtgui.RangeWidget(self._variable_y_freq_range, self.set_variable_y_freq, "Signal frequency", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._variable_y_freq_win)
-        self._variable_x_freq_range = qtgui.Range(0, 5000, 1, 500, 200)
-        self._variable_x_freq_win = qtgui.RangeWidget(self._variable_x_freq_range, self.set_variable_x_freq, "Signal frequency", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._variable_x_freq_win)
         self._variable_m_range = qtgui.Range(0, 1, 1, 1, 200)
         self._variable_m_win = qtgui.RangeWidget(self._variable_m_range, self.set_variable_m, "modulation index", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._variable_m_win)
@@ -106,25 +106,33 @@ class Lab0(gr.top_block, Qt.QWidget):
         self._Base_Band_range = qtgui.Range(0, 50000, 1, 1000, 200)
         self._Base_Band_win = qtgui.RangeWidget(self._Base_Band_range, self.set_Base_Band, "Base Band Frequency", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._Base_Band_win)
-        self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
+        self._variable_x_freq_range = qtgui.Range(0, 5000, 1, 500, 200)
+        self._variable_x_freq_win = qtgui.RangeWidget(self._variable_x_freq_range, self.set_variable_x_freq, "Signal frequency", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._variable_x_freq_win)
+        self.rational_resampler_xxx_0 = filter.rational_resampler_fff(
+                interpolation=18,
+                decimation=1,
+                taps=[],
+                fractional_bw=0)
+        self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
             1024, #size
             samp_rate, #samp_rate
             "", #name
-            2, #number of inputs
+            1, #number of inputs
             None # parent
         )
-        self.qtgui_time_sink_x_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_0.set_y_axis(-1, 1)
+        self.qtgui_time_sink_x_1.set_update_time(0.10)
+        self.qtgui_time_sink_x_1.set_y_axis(-1, 1)
 
-        self.qtgui_time_sink_x_0.set_y_label('Amplitude', "")
+        self.qtgui_time_sink_x_1.set_y_label('Amplitude', "")
 
-        self.qtgui_time_sink_x_0.enable_tags(True)
-        self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_0.enable_autoscale(True)
-        self.qtgui_time_sink_x_0.enable_grid(False)
-        self.qtgui_time_sink_x_0.enable_axis_labels(True)
-        self.qtgui_time_sink_x_0.enable_control_panel(False)
-        self.qtgui_time_sink_x_0.enable_stem_plot(False)
+        self.qtgui_time_sink_x_1.enable_tags(True)
+        self.qtgui_time_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_1.enable_autoscale(True)
+        self.qtgui_time_sink_x_1.enable_grid(False)
+        self.qtgui_time_sink_x_1.enable_axis_labels(True)
+        self.qtgui_time_sink_x_1.enable_control_panel(False)
+        self.qtgui_time_sink_x_1.enable_stem_plot(False)
 
 
         labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
@@ -141,62 +149,37 @@ class Lab0(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(2):
+        for i in range(1):
             if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_0.set_line_label(i, "Data {0}".format(i))
+                self.qtgui_time_sink_x_1.set_line_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_time_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_0.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_0.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_0.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_0.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
+                self.qtgui_time_sink_x_1.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_1.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_1.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_1.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_1.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_1.set_line_alpha(i, alphas[i])
 
-        self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_0_win)
-        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_f(
-            1024, #size
-            window.WIN_RECTANGULAR, #wintype
-            0, #fc
-            samp_rate, #bw
-            "", #name
-            2,
-            None # parent
-        )
-        self.qtgui_freq_sink_x_0.set_update_time(0.10)
-        self.qtgui_freq_sink_x_0.set_y_axis((-140), 10)
-        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0.enable_autoscale(True)
-        self.qtgui_freq_sink_x_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0.set_fft_average(0.05)
-        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0.enable_control_panel(False)
-        self.qtgui_freq_sink_x_0.set_fft_window_normalized(False)
-
-
-        self.qtgui_freq_sink_x_0.set_plot_pos_half(not True)
-
-        labels = ['original_cosine_signal', 'original_sine_signal', 'processed_cosine_signal', 'processed_sine_signal', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-
-        for i in range(2):
-            if len(labels[i]) == 0:
-                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
-            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
-            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
+        self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_1_win)
+        self.low_pass_filter_1_0_0 = filter.interp_fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                Sig_band,
+                filter_transition,
+                window.WIN_HAMMING,
+                6.76))
+        self.low_pass_filter_1_0 = filter.interp_fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                Sig_band,
+                filter_transition,
+                window.WIN_HAMMING,
+                6.76))
         self.low_pass_filter_0_0 = filter.fir_filter_fff(
             1,
             firdes.low_pass(
@@ -233,16 +216,27 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_cc(variable_a1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(variable_a1)
         self.blocks_float_to_complex_0_0 = blocks.float_to_complex(1)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/I_qpsk.data', True, 0, 0)
+        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_complex_to_float_1 = blocks.complex_to_float(1)
         self.blocks_add_xx_1_0 = blocks.add_vcc(1)
         self.blocks_add_xx_1 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
         self.blocks_add_const_vxx_0_0 = blocks.add_const_ff(1)
         self.blocks_add_const_vxx_0 = blocks.add_const_ff(1)
+        self.band_pass_filter_0 = filter.fir_filter_ccf(
+            1,
+            firdes.band_pass(
+                1,
+                samp_rate,
+                (variable_fc - (Sig_band/2) ),
+                (variable_fc + (Sig_band/2) ),
+                filter_transition,
+                window.WIN_HAMMING,
+                6.76))
         self.analog_sig_source_x_2_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, variable_fc, 1, 0, 0)
         self.analog_sig_source_x_2 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, variable_fc, 1, 0, 0)
         self.analog_sig_source_x_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, variable_y_freq, 1, 0, 0)
-        self.analog_sig_source_x_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, variable_x_freq, 1, 0, 0)
         self.analog_const_source_x_1 = analog.sig_source_c(0, analog.GR_CONST_WAVE, 0, 0, 0)
 
 
@@ -250,23 +244,24 @@ class Lab0(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_const_source_x_1, 0), (self.blocks_add_xx_0, 1))
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_const_vxx_3, 0))
-        self.connect((self.analog_sig_source_x_0_0, 0), (self.blocks_multiply_const_vxx_3_0, 0))
+        self.connect((self.analog_sig_source_x_0_0, 0), (self.low_pass_filter_1_0_0, 0))
         self.connect((self.analog_sig_source_x_2, 0), (self.blocks_multiply_xx_0_0, 1))
         self.connect((self.analog_sig_source_x_2_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.analog_sig_source_x_2_0, 0), (self.blocks_multiply_xx_0_1, 1))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3, 0))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3, 1))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3_0, 1))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3_0, 0))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3_0, 2))
         self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_float_to_complex_0_0, 0))
         self.connect((self.blocks_add_const_vxx_0_0, 0), (self.blocks_float_to_complex_0_0, 1))
-        self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_xx_0_3, 1))
-        self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_xx_0_3, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_xx_0_3_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_xx_0_3_0, 1))
-        self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_xx_0_3_0, 2))
+        self.connect((self.blocks_add_xx_0, 0), (self.band_pass_filter_0, 0))
         self.connect((self.blocks_add_xx_1, 0), (self.blocks_complex_to_float_1, 0))
         self.connect((self.blocks_add_xx_1_0, 0), (self.blocks_multiply_const_vxx_1_0, 0))
         self.connect((self.blocks_complex_to_float_1, 1), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_complex_to_float_1, 0), (self.blocks_multiply_xx_0_1, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.blocks_float_to_complex_0_0, 0), (self.blocks_multiply_xx_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_xx_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_1_0, 0))
@@ -278,27 +273,29 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_multiply_const_vxx_3, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.blocks_multiply_const_vxx_3, 0), (self.blocks_null_sink_0, 0))
         self.connect((self.blocks_multiply_const_vxx_3_0, 0), (self.blocks_add_const_vxx_0_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_3_0, 0), (self.qtgui_freq_sink_x_0, 1))
-        self.connect((self.blocks_multiply_const_vxx_3_0, 0), (self.qtgui_time_sink_x_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_3_0, 0), (self.blocks_null_sink_0, 1))
         self.connect((self.blocks_multiply_xx_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
-        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 2))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 1))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 0))
-        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_1, 0))
+        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 2))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_1, 1))
+        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_1, 0))
         self.connect((self.blocks_multiply_xx_0_1, 0), (self.low_pass_filter_0_0, 0))
         self.connect((self.blocks_multiply_xx_0_3, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_multiply_xx_0_3_0, 0), (self.blocks_multiply_const_vxx_2, 0))
         self.connect((self.blocks_multiply_xx_0_3_0_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
         self.connect((self.blocks_multiply_xx_0_3_1, 0), (self.blocks_multiply_const_vxx_1_1, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.low_pass_filter_0_0, 0), (self.blocks_null_sink_0, 1))
+        self.connect((self.low_pass_filter_0, 0), (self.blocks_null_sink_0, 3))
+        self.connect((self.low_pass_filter_0_0, 0), (self.blocks_null_sink_0, 2))
+        self.connect((self.low_pass_filter_1_0, 0), (self.blocks_multiply_const_vxx_3, 0))
+        self.connect((self.low_pass_filter_1_0_0, 0), (self.blocks_multiply_const_vxx_3_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.low_pass_filter_1_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_time_sink_x_1, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "Lab0")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "QAM_test")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -317,7 +314,6 @@ class Lab0(gr.top_block, Qt.QWidget):
 
     def set_variable_x_freq(self, variable_x_freq):
         self.variable_x_freq = variable_x_freq
-        self.analog_sig_source_x_0.set_frequency(self.variable_x_freq)
 
     def get_variable_m(self):
         return self.variable_m
@@ -334,6 +330,7 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.variable_fc = variable_fc
         self.analog_sig_source_x_2.set_frequency(self.variable_fc)
         self.analog_sig_source_x_2_0.set_frequency(self.variable_fc)
+        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, (self.variable_fc - (self.Sig_band/2) ), (self.variable_fc + (self.Sig_band/2) ), self.filter_transition, window.WIN_HAMMING, 6.76))
 
     def get_variable_channel_atenuation(self):
         return self.variable_channel_atenuation
@@ -371,14 +368,33 @@ class Lab0(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0_0.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_2.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_2_0.set_sampling_freq(self.samp_rate)
+        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, (self.variable_fc - (self.Sig_band/2) ), (self.variable_fc + (self.Sig_band/2) ), self.filter_transition, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Base_Band, 100, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Base_Band, 100, window.WIN_HAMMING, 6.76))
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
-        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
+        self.low_pass_filter_1_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
+
+    def get_filter_transition(self):
+        return self.filter_transition
+
+    def set_filter_transition(self, filter_transition):
+        self.filter_transition = filter_transition
+        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, (self.variable_fc - (self.Sig_band/2) ), (self.variable_fc + (self.Sig_band/2) ), self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+
+    def get_Sig_band(self):
+        return self.Sig_band
+
+    def set_Sig_band(self, Sig_band):
+        self.Sig_band = Sig_band
+        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, (self.variable_fc - (self.Sig_band/2) ), (self.variable_fc + (self.Sig_band/2) ), self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
 
     def get_Base_Band(self):
         return self.Base_Band
@@ -391,7 +407,7 @@ class Lab0(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=Lab0, options=None):
+def main(top_block_cls=QAM_test, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 

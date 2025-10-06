@@ -1,3 +1,4 @@
 Report/main.*
 !Report/main.tex
 .DS_Store
+__pycache__
