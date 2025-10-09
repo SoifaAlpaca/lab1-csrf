@@ -649,7 +649,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'True'
+    autoscale: 'False'
     average: '1.0'
     axislabels: 'True'
     bw: samp_rate
@@ -714,7 +714,7 @@ blocks:
     bus_structure: null
     coordinate: [2728, 204.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: qtgui_freq_sink_x_1
   id: qtgui_freq_sink_x
   parameters:
@@ -1084,7 +1084,7 @@ blocks:
     bus_structure: null
     coordinate: [2400, 268.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: virtual_source_0_0_0
   id: virtual_source
   parameters:

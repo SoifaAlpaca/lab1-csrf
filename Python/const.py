@@ -1,6 +1,9 @@
 import numpy as np
 from sympy import *
 
+gray_map = [0, 1, 3, 2]
+
+
 def qpsk(data):
 
     I_arr = []
@@ -11,7 +14,7 @@ def qpsk(data):
         b1 = int(data[i])
         b2 = int(data[i+1])
 
-        k = 2*b2 +b1
+        k = gray_map[2*b2 +b1]
 
         s = exp( np.pi*0.5*I*(k+0.5) )
 
@@ -25,8 +28,6 @@ def qam_16(data):
     I_arr = []
     Q_arr = []
     
-    gray_map = [0, 1, 3, 2]
-
     norm = abs( 3 + 3*I )
     for i in range(0,len(data),4):
         
@@ -45,3 +46,15 @@ def qam_16(data):
         Q_arr.append(im(s))
 
     return I_arr,Q_arr
+
+
+def downsample(symbols,n_rep):
+
+    symb = np.zeros(len(symbols)*n_rep)
+    pos = 0
+    for s in symbols:
+        for _ in range(n_rep):
+            symb[pos] = s
+            pos += 1
+
+    return symb
