@@ -4,7 +4,7 @@ from sympy import *
 gray_map = [0, 1, 3, 2]
 
 
-def qpsk(data):
+def mod_qpsk(data):
 
     I_arr = []
     Q_arr = []
@@ -23,7 +23,7 @@ def qpsk(data):
 
     return I_arr,Q_arr
 
-def qam_16(data):
+def mod_qam_16(data):
 
     I_arr = []
     Q_arr = []
@@ -48,7 +48,7 @@ def qam_16(data):
     return I_arr,Q_arr
 
 
-def downsample(symbols,n_rep):
+def upsample(symbols,n_rep):
 
     symb = np.zeros(len(symbols)*n_rep)
     pos = 0

@@ -1,5 +1,5 @@
 import numpy as np
-from const import qpsk,qam_16,downsample
+from const import *
 
 FileFolder = 'GnuRadio/FileInput/'
 n_points   = int(1e4)
@@ -22,9 +22,9 @@ gen_qpsk = True
 
 if gen_qpsk:
     
-    I_arr,Q_arr = qpsk(data)
-    I_arr = downsample(I_arr,rep)
-    Q_arr = downsample(Q_arr,rep)
+    I_arr,Q_arr = mod_qpsk(data)
+    I_arr = upsample(I_arr,rep)
+    Q_arr = upsample(Q_arr,rep)
     
     np.array(I_arr,dtype=np.float32).tofile(FileFolder+'I_qpsk.data')
     np.array(Q_arr,dtype=np.float32).tofile(FileFolder+'Q_qpsk.data')
@@ -33,11 +33,11 @@ ge_qam16 = True
 
 if ge_qam16:
     
-    I_arr,Q_arr = qam_16(data)
-    I_arr = downsample(I_arr,rep)
-    Q_arr = downsample(Q_arr,rep)
+    I_arr,Q_arr = mod_qam_16(data)
+    I_arr = upsample(I_arr,rep)
+    Q_arr = upsample(Q_arr,rep)
     
     np.array(I_arr,dtype=np.float32).tofile(FileFolder+'I_16_qam.data')
     np.array(Q_arr,dtype=np.float32).tofile(FileFolder+'Q_16_qam.data')
 
-data = np.array(downsample(data,rep),dtype=np.float32).tofile('Python/bits.data')
+data = np.array(upsample(data,rep),dtype=np.float32).tofile('Python/bits.data')
