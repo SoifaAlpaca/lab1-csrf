@@ -116,7 +116,7 @@ class QAM_test(gr.top_block, Qt.QWidget):
             1024, #size
             samp_rate, #samp_rate
             "", #name
-            2, #number of inputs
+            4, #number of inputs
             None # parent
         )
         self.qtgui_time_sink_x_1.set_update_time(0.10)
@@ -147,7 +147,7 @@ class QAM_test(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(2):
+        for i in range(4):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_1.set_line_label(i, "Data {0}".format(i))
             else:
@@ -203,6 +203,15 @@ class QAM_test(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_2_win = sip.wrapinstance(self.qtgui_freq_sink_x_2.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_2_win)
+        self.low_pass_filter_1_0_1 = filter.interp_fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                Sig_band,
+                filter_transition,
+                window.WIN_HAMMING,
+                6.76))
         self.low_pass_filter_1_0_0 = filter.interp_fir_filter_fff(
             1,
             firdes.low_pass(
@@ -257,8 +266,16 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_cc(variable_a1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(variable_a1)
         self.blocks_float_to_complex_0_0 = blocks.float_to_complex(1)
+        self.blocks_file_source_0_0 = blocks.file_source(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileInput/Q_16_qam.data', True, 0, 0)
+        self.blocks_file_source_0_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileInput/I_16_qam.data', True, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_file_sink_0_0_0_0 = blocks.file_sink(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileOutput/Q_symb_in.data', False)
+        self.blocks_file_sink_0_0_0_0.set_unbuffered(False)
+        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileOutput/I_symb_in.data', False)
+        self.blocks_file_sink_0_0_0.set_unbuffered(False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileOutput/Q_16_qam.data', False)
+        self.blocks_file_sink_0_0.set_unbuffered(False)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileOutput/I_16_qam.data', False)
         self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_complex_to_float_1 = blocks.complex_to_float(1)
@@ -292,11 +309,11 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.connect((self.analog_sig_source_x_2_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.analog_sig_source_x_2_0, 0), (self.blocks_multiply_xx_0_1, 1))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3, 1))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3, 0))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3, 1))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3_0, 1))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3_0, 2))
-        self.connect((self.band_pass_filter_0, 0), (self.blocks_multiply_xx_0_3_0, 0))
         self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_float_to_complex_0_0, 0))
         self.connect((self.blocks_add_const_vxx_0_0, 0), (self.blocks_float_to_complex_0_0, 1))
         self.connect((self.blocks_add_xx_0, 0), (self.band_pass_filter_0, 0))
@@ -304,9 +321,13 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_add_xx_1_0, 0), (self.blocks_multiply_const_vxx_1_0, 0))
         self.connect((self.blocks_complex_to_float_1, 1), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_complex_to_float_1, 0), (self.blocks_multiply_xx_0_1, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.blocks_file_sink_0_0_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.low_pass_filter_1_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.qtgui_freq_sink_x_2, 0))
         self.connect((self.blocks_file_source_0, 0), (self.qtgui_time_sink_x_1, 1))
+        self.connect((self.blocks_file_source_0_0, 0), (self.blocks_file_sink_0_0_0_0, 0))
+        self.connect((self.blocks_file_source_0_0, 0), (self.low_pass_filter_1_0_1, 0))
+        self.connect((self.blocks_file_source_0_0, 0), (self.qtgui_time_sink_x_1, 2))
         self.connect((self.blocks_float_to_complex_0_0, 0), (self.blocks_multiply_xx_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_xx_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_1_0, 0))
@@ -322,10 +343,10 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_multiply_xx_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 1))
-        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 2))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 0))
-        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_1, 0))
+        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_0_0, 2))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_1, 1))
+        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_xx_0_3_1, 0))
         self.connect((self.blocks_multiply_xx_0_1, 0), (self.low_pass_filter_0_0, 0))
         self.connect((self.blocks_multiply_xx_0_3, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_multiply_xx_0_3_0, 0), (self.blocks_multiply_const_vxx_2, 0))
@@ -338,6 +359,8 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.connect((self.low_pass_filter_1_0, 0), (self.qtgui_freq_sink_x_2, 1))
         self.connect((self.low_pass_filter_1_0, 0), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.low_pass_filter_1_0_0, 0), (self.blocks_multiply_const_vxx_3_0, 0))
+        self.connect((self.low_pass_filter_1_0_1, 0), (self.blocks_file_sink_0_0, 0))
+        self.connect((self.low_pass_filter_1_0_1, 0), (self.qtgui_time_sink_x_1, 3))
 
 
     def closeEvent(self, event):
@@ -422,6 +445,7 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.low_pass_filter_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Base_Band, 2000, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_1.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_2.set_frequency_range(0, self.samp_rate)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
 
@@ -433,6 +457,7 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, (self.variable_fc - (self.Sig_band/2) ), (self.variable_fc + (self.Sig_band/2) ), self.filter_transition, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_1.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
 
     def get_Sig_band(self):
         return self.Sig_band
@@ -442,6 +467,7 @@ class QAM_test(gr.top_block, Qt.QWidget):
         self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, (self.variable_fc - (self.Sig_band/2) ), (self.variable_fc + (self.Sig_band/2) ), self.filter_transition, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_1.set_taps(firdes.low_pass(1, self.samp_rate, self.Sig_band, self.filter_transition, window.WIN_HAMMING, 6.76))
 
     def get_Base_Band(self):
         return self.Base_Band

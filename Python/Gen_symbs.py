@@ -11,18 +11,14 @@ Sig_freq  = 20e3
 rep       = int(freq_samp/(2*Sig_freq))
 print(rep)
 
-
+#Create random data
 data = np.random.randint(0, 2, n_points).astype(np.uint8)
-
-ring = np.array([ i % 2 for i in range(12) ])
-
-data = np.concatenate((ring,data))
 
 gen_qpsk = True
 
 if gen_qpsk:
     
-    I_arr,Q_arr = mod_qpsk(data)
+    I_arr,Q_arr = modulate(data,'QPSK')
     I_arr = upsample(I_arr,rep)
     Q_arr = upsample(Q_arr,rep)
     
@@ -33,11 +29,11 @@ ge_qam16 = True
 
 if ge_qam16:
     
-    I_arr,Q_arr = mod_qam_16(data)
+    I_arr,Q_arr = modulate(data,'16QAM')
     I_arr = upsample(I_arr,rep)
     Q_arr = upsample(Q_arr,rep)
     
     np.array(I_arr,dtype=np.float32).tofile(FileFolder+'I_16_qam.data')
     np.array(Q_arr,dtype=np.float32).tofile(FileFolder+'Q_16_qam.data')
 
-data = np.array(upsample(data,rep),dtype=np.float32).tofile('Python/bits.data')
+data = np.array(data,dtype=np.float32).tofile('Python/bits.data')

@@ -3,3 +3,4 @@ Report/main.*
 .DS_Store
 *.data
 __pycache__
+Python/tmp*
