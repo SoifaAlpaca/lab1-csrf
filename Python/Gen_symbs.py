@@ -25,9 +25,9 @@ if gen_qpsk:
     np.array(I_arr,dtype=np.float32).tofile(FileFolder+'I_qpsk.data')
     np.array(Q_arr,dtype=np.float32).tofile(FileFolder+'Q_qpsk.data')
 
-ge_qam16 = True
+gen_qam16 = True
 
-if ge_qam16:
+if gen_qam16:
     
     I_arr,Q_arr = modulate(data,'16QAM')
     I_arr = upsample(I_arr,rep)

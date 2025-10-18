@@ -16,7 +16,7 @@ if plot_qpsk:
         for j in i:
             data.append(j)
 
-    I_arr,Q_arr = mod_qpsk(data)
+    I_arr,Q_arr = modulate(data,'QPSK',pilot=False)
     plt.scatter(I_arr,Q_arr,color=Blue)
 
     for i in range(len(I_arr)):
@@ -43,7 +43,7 @@ if plot_16qam:
             data.append(j)
 
 
-    I_arr,Q_arr = mod_qam_16(data)
+    I_arr,Q_arr = modulate(data,'16QAM',pilot=False)
     plt.scatter(I_arr,Q_arr,color=Blue)
 
     for i in range(len(I_arr)):

@@ -2,22 +2,24 @@ import numpy as np
 from sympy import *
 from numba import njit, prange
 
-gray_map     = [0, 1, 3, 2]
-inv_gray_map = {0:0, 1:1, 3:2, 2:3}
+gray_map = np.array([0, 1, 3, 2], dtype=np.int64)
+#inv_gray_map = {0:0, 1:1, 3:2, 2:3}
 pilot_cycle  = 12
-qpsk_pilot   = np.array([ int(i % 2)/sqrt(2) for i in range(pilot_cycle) ])
 
-qam16_norm   = float(sqrt(10))#abs( 3 + 3*I )
-qam16_levels = np.array([-3, -1, 1, 3], dtype=float)/qam16_norm
-qam16_pilot  = np.array([ qam16_levels[int(i % 2)*3] for i in range(pilot_cycle) ])
+qpsk_pilot   = np.array([ ( int(i % 2)*2 -1 )/sqrt(2) for i in range(pilot_cycle) ])
 
-def modulate(data,mode):
+qam16_norm      = float(sqrt(10))#abs( 3 + 3*I )
+qam16_levels    = np.array([-3, -1, 1, 3], dtype=float)/qam16_norm
+max_16qam_level = max(abs(qam16_levels))
+qam16_pilot     = np.array([ qam16_levels[int(i % 2)*3] for i in range(pilot_cycle) ])
+
+def modulate(data,mode,pilot=True):
 
     if mode == '16QAM':
-        return mod_qam_16(data)
+        return mod_qam_16(data,pilot)
     
     if mode == 'QPSK':
-        return mod_qpsk(data)
+        return mod_qpsk(data,pilot)
 
 def add_pilot(data,mode):
 
@@ -81,29 +83,59 @@ def mod_qam_16(data,pilot=True):
 def demodulate(I_arr,Q_arr,mode):
 
     if mode == '16QAM':
-        return demod_qam_16(I_arr,Q_arr)
+        return np.array(demod_qam_16(I_arr,Q_arr), dtype=int)
     
-    #if mode == 'QPSK':
-    #    return demod_qpsk(I_arr,Q_arr)
+    elif mode == 'QPSK':
+        return demod_qpsk(I_arr,Q_arr)
 
+    else:
+        print('Not Implemented')
+        return None
 
-def demod_qam_16(I_arr,Q_arr):
+def demod_qpsk(I_arr,Q_arr):
+
 
     bitstream = []
 
-    for I_idx, Q_idx in zip(I_arr, Q_arr):
+    length = min( len(I_arr),len(Q_arr) )
+    #bitstream = np.empty(lenght * 4, dtype=np.int64)
+
+    for i in range(length):
+
+        b0 = int(I_arr[i]*-1 + 1)
+        b1 = int(Q_arr[i]*-1 + 1)
+
+        bitstream += [b0,b1]
+
+    return bitstream
         
-        i_bin = inv_gray_map[int(I_idx)]
-        q_bin = inv_gray_map[int(Q_idx)]
+
+@njit(parallel=True)
+def demod_qam_16(I_arr,Q_arr):
+
+    n = min(len(I_arr),len(Q_arr))
+    bitstream = np.empty(n * 4, dtype=np.int64)
+
+    for idx in prange(n):  # <-- parallel loop
+    
+        I_idx = I_arr[idx]
+        Q_idx = Q_arr[idx]
+        
+        i_bin = gray_map[int(I_idx)]
+        q_bin = gray_map[int(Q_idx)]
         
         b1 = (q_bin >> 1) & 1
         b2 = q_bin & 1
         b3 = (i_bin >> 1) & 1
         b4 = i_bin & 1
         
-        bitstream += [b1, b2, b3, b4]
+        base_idx = idx * 4
+        bitstream[base_idx]     = b1
+        bitstream[base_idx + 1] = b2
+        bitstream[base_idx + 2] = b3
+        bitstream[base_idx + 3] = b4
     
-    return np.array(bitstream, dtype=int)
+    return bitstream
 
 
 #signal already quantized
@@ -137,9 +169,43 @@ def extract_data(sig,f_ratio):
     
     return data#,pos_arr
 
+def normalize_out(data):
+
+    m = np.max(abs(data))
+
+    return data / np.float64(m)
+
 def remove_pilot(data):
 
     return data[pilot_cycle:]
+
+def quantizer(data,bits):
+
+    if not isinstance(data, np.ndarray) or not np.issubdtype(data.dtype, np.number):
+        print(f"[Warning] Input had dtype={getattr(data, 'dtype', type(data))}, converting to float64.")
+        data = np.asarray(data, dtype=np.float64)
+
+    if bits == 1:
+        return quantizer_1bit(data)
+    
+    elif bits == 2:
+        return quantizer_2bit(data)
+    
+    else:
+        print('Warning: Not Implemented')
+        return None
+
+#def demod_qpsk(I_arr,Q_arr):
+@njit(parallel=True)
+def quantizer_1bit(data):
+
+    n = data.size
+    idxs = np.empty(n, dtype=np.int32)
+    for i in prange(n):
+        
+        idxs[i] = int(data[i]>-0.1)
+
+    return idxs
 
 #def demod_qpsk(I_arr,Q_arr):
 @njit(parallel=True)
