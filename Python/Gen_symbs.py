@@ -2,7 +2,7 @@ import numpy as np
 from const import *
 
 FileFolder = 'GnuRadio/FileInput/'
-n_points   = int(1e4)
+n_points   = int(3e6)
 np.random.seed(3141592)
 
 # Parameters
@@ -14,7 +14,7 @@ print(rep)
 #Create random data
 data = np.random.randint(0, 2, n_points).astype(np.uint8)
 
-gen_qpsk = True
+gen_qpsk = False#True
 
 if gen_qpsk:
     

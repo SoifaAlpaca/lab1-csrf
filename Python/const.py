@@ -8,7 +8,7 @@ pilot_cycle  = 12
 
 qpsk_pilot   = np.array([ ( int(i % 2)*2 -1 )/sqrt(2) for i in range(pilot_cycle) ])
 
-qam16_norm      = float(sqrt(10))#abs( 3 + 3*I )
+qam16_norm      = 1#float(sqrt(10))#abs( 3 + 3*I )
 qam16_levels    = np.array([-3, -1, 1, 3], dtype=float)/qam16_norm
 max_16qam_level = max(abs(qam16_levels))
 qam16_pilot     = np.array([ qam16_levels[int(i % 2)*3] for i in range(pilot_cycle) ])
@@ -142,24 +142,21 @@ def demod_qam_16(I_arr,Q_arr):
 #f_ratio = f_gnu/f_bitstream
 #ideally this would calculate f_ratio 
 
-def extract_data(sig,f_ratio):
+def extract_data(sig,f_ratio,mode ):
 
     data    = []
     pos_arr = []
 
     #find tone
     pos = 0
-    for s in sig:
-        if s <= 0:
-            break 
-        pos += 1
+    #for s in sig:
+    #    if s <= 0:
+    #        break 
+    #    pos += 1
     
-    # find 'duty cycle'
-    pos_end = pos
-    while( sig[pos_end] == 0 ):
-        pos_end += 1
+
     
-    i = int((pos_end + pos)/2)   # middle of peak
+    i = 3709# int((pos_end + pos)/2)   # middle of peak
     #print((pos_end - pos)/2)
     while(i < len(sig)):
 
@@ -211,13 +208,31 @@ def quantizer_1bit(data):
 @njit(parallel=True)
 def quantizer_2bit(data,norm=qam16_norm):
 
-    arr_unscaled = data * norm
-    n = arr_unscaled.size
+    l0 = -3.0 
+    l1 = -1.0 
+    l2 =  1.0 
+    l3 =  3.0 
+
+    t0 = 0.5 * (l0 + l1)  # midpoint between level 0 and 1
+    t1 = 0.5 * (l1 + l2)  # midpoint between level 1 and 2
+    t2 = 0.5 * (l2 + l3)  # midpoint between level 2 and 3
+
+    data *= 3
+    #data -= 3
+    n = data.size
     idxs = np.empty(n, dtype=np.int32)
+
     for i in prange(n):
-        
-        idx = int(round((arr_unscaled[i] + 3) / 2))
-        idxs[i] = min(max(idx, 0), 3)
+        x = data[i]
+        # assign using thresholds
+        if x < t0:
+            idxs[i] = 0
+        elif x < t1:
+            idxs[i] = 1
+        elif x < t2:
+            idxs[i] = 2
+        else:
+            idxs[i] = 3
 
     return idxs
     data = np.asarray(data)

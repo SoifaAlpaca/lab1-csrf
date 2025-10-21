@@ -51,8 +51,8 @@ if plot_16qam:
         label = str(bin(i+2**n_bits)[3:])
         plt.text(I_arr[i]+0.1,Q_arr[i],label,color=Orange, fontsize=12)
 
-    plt.xlim(-1, 1) # Set x-axis
-    plt.ylim(-1, 1) # Set y-axis  
+    plt.xlim(-1.4, 1.4) # Set x-axis
+    plt.ylim(-1.4, 1.4) # Set y-axis  
     plt.title('16-QAM Constellation')
     plt.xlabel('I')
     plt.ylabel('Q')

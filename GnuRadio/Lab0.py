@@ -13,6 +13,7 @@ from gnuradio import qtgui
 from PyQt5 import QtCore
 from gnuradio import analog
 from gnuradio import blocks
+import pmt
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
@@ -84,12 +85,6 @@ class Lab0(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self._variable_y_freq_range = qtgui.Range(0, 5000, 1, 250, 200)
-        self._variable_y_freq_win = qtgui.RangeWidget(self._variable_y_freq_range, self.set_variable_y_freq, "Signal frequency", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._variable_y_freq_win)
-        self._variable_x_freq_range = qtgui.Range(0, 5000, 1, 500, 200)
-        self._variable_x_freq_win = qtgui.RangeWidget(self._variable_x_freq_range, self.set_variable_x_freq, "Signal frequency", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._variable_x_freq_win)
         self._variable_m_range = qtgui.Range(0, 1, 1, 1, 200)
         self._variable_m_win = qtgui.RangeWidget(self._variable_m_range, self.set_variable_m, "modulation index", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._variable_m_win)
@@ -120,6 +115,12 @@ class Lab0(gr.top_block, Qt.QWidget):
         self._emitter_cutoff_LP_range = qtgui.Range(100, 45000, 10, 40000, 200)
         self._emitter_cutoff_LP_win = qtgui.RangeWidget(self._emitter_cutoff_LP_range, self.set_emitter_cutoff_LP, "Emitter cutoff freq", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._emitter_cutoff_LP_win)
+        self._variable_y_freq_range = qtgui.Range(0, 5000, 1, 250, 200)
+        self._variable_y_freq_win = qtgui.RangeWidget(self._variable_y_freq_range, self.set_variable_y_freq, "Signal frequency", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._variable_y_freq_win)
+        self._variable_x_freq_range = qtgui.Range(0, 5000, 1, 500, 200)
+        self._variable_x_freq_win = qtgui.RangeWidget(self._variable_x_freq_range, self.set_variable_x_freq, "Signal frequency", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._variable_x_freq_win)
         self.qtgui_time_sink_x_0_0 = qtgui.time_sink_f(
             1024, #size
             samp_rate, #samp_rate
@@ -128,13 +129,13 @@ class Lab0(gr.top_block, Qt.QWidget):
             None # parent
         )
         self.qtgui_time_sink_x_0_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_0_0.set_y_axis(-1, 1)
+        self.qtgui_time_sink_x_0_0.set_y_axis(-1.6, 1.6)
 
         self.qtgui_time_sink_x_0_0.set_y_label('Amplitude', "")
 
         self.qtgui_time_sink_x_0_0.enable_tags(True)
         self.qtgui_time_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_AUTO, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_0_0.enable_autoscale(True)
+        self.qtgui_time_sink_x_0_0.enable_autoscale(False)
         self.qtgui_time_sink_x_0_0.enable_grid(False)
         self.qtgui_time_sink_x_0_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_0_0.enable_control_panel(False)
@@ -224,7 +225,7 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0_0.set_y_axis((-140), 10)
         self.qtgui_freq_sink_x_0_0.set_y_label('Relative Gain', 'dB')
         self.qtgui_freq_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0_0.enable_autoscale(True)
+        self.qtgui_freq_sink_x_0_0.enable_autoscale(False)
         self.qtgui_freq_sink_x_0_0.enable_grid(False)
         self.qtgui_freq_sink_x_0_0.set_fft_average(1.0)
         self.qtgui_freq_sink_x_0_0.enable_axis_labels(True)
@@ -293,7 +294,6 @@ class Lab0(gr.top_block, Qt.QWidget):
         self._emitter_power_amplifier_a2_range = qtgui.Range(-10, 10, 1, 0, 200)
         self._emitter_power_amplifier_a2_win = qtgui.RangeWidget(self._emitter_power_amplifier_a2_range, self.set_emitter_power_amplifier_a2, "Emitter amplier a2", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._emitter_power_amplifier_a2_win)
-        self.blocks_null_source_0 = blocks.null_source(gr.sizeof_float*1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_multiply_xx_0_3_1 = blocks.multiply_vff(1)
         self.blocks_multiply_xx_0_3_0_0 = blocks.multiply_vff(1)
@@ -312,6 +312,14 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_ff(receiver_power_amplifier_a2)
         self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_ff(emitter_power_amplifier_a1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(receiver_power_amplifier_a1)
+        self.blocks_file_source_0_0 = blocks.file_source(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileInput/Q_16_qam.data', True, 0, 0)
+        self.blocks_file_source_0_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileInput/I_16_qam.data', True, 0, 0)
+        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileOutput/I_16_qam.data', False)
+        self.blocks_file_sink_0_0.set_unbuffered(False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_float*1, '/Users/martim/Uni/MEEC/SM3/CSRF/Lab/lab1-csrf/GnuRadio/FileOutput/Q_16_qam.data', False)
+        self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_add_xx_3 = blocks.add_vff(1)
         self.blocks_add_xx_1_0 = blocks.add_vff(1)
         self.blocks_add_xx_1 = blocks.add_vff(1)
@@ -321,15 +329,13 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.top_layout.addWidget(self._bandpass_bandwidth_win)
         self.analog_sig_source_x_0_0_1 = analog.sig_source_f(samp_rate, analog.GR_SIN_WAVE, modulation_frequency, 1, 0, 0)
         self.analog_sig_source_x_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, modulation_frequency, 1, 0, 0)
-        self.analog_sig_source_x_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, variable_y_freq, 1, 0, 0)
-        self.analog_sig_source_x_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, variable_x_freq, 1, 0, 0)
+        self.analog_noise_source_x_0 = analog.noise_source_f(analog.GR_GAUSSIAN, 0.8, 0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0, 0), (self.low_pass_filter_1, 0))
-        self.connect((self.analog_sig_source_x_0_0, 0), (self.low_pass_filter_1_0, 0))
+        self.connect((self.analog_noise_source_x_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.analog_sig_source_x_0_0_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.analog_sig_source_x_0_0_0, 0), (self.blocks_multiply_xx_0_1, 0))
         self.connect((self.analog_sig_source_x_0_0_1, 0), (self.blocks_multiply_xx_0_0, 0))
@@ -342,20 +348,22 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_add_xx_1_0, 0), (self.qtgui_freq_sink_x_1, 0))
         self.connect((self.blocks_add_xx_1_0, 0), (self.qtgui_time_sink_x_0_0, 0))
         self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_const_vxx_0_0, 0))
+        self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_xx_0_3_0_0, 0))
         self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_xx_0_3_0_0, 2))
         self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_xx_0_3_0_0, 1))
-        self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_xx_0_3_0_0, 0))
-        self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_xx_0_3_1, 1))
         self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_xx_0_3_1, 0))
+        self.connect((self.blocks_add_xx_3, 0), (self.blocks_multiply_xx_0_3_1, 1))
+        self.connect((self.blocks_file_source_0, 0), (self.low_pass_filter_1, 0))
+        self.connect((self.blocks_file_source_0_0, 0), (self.low_pass_filter_1_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_xx_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_1_0, 0))
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.blocks_add_xx_1, 1))
         self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_xx_0_3, 0))
         self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_xx_0_3, 1))
-        self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_xx_0_3_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_xx_0_3, 0))
         self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_xx_0_3_0, 2))
         self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_xx_0_3_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_multiply_xx_0_3_0, 1))
         self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.blocks_add_xx_1_0, 1))
         self.connect((self.blocks_multiply_const_vxx_2, 0), (self.blocks_add_xx_1, 2))
         self.connect((self.blocks_multiply_const_vxx_2_0, 0), (self.blocks_add_xx_1_0, 2))
@@ -371,8 +379,9 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_multiply_xx_0_3_0, 0), (self.blocks_multiply_const_vxx_2, 0))
         self.connect((self.blocks_multiply_xx_0_3_0_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
         self.connect((self.blocks_multiply_xx_0_3_1, 0), (self.blocks_multiply_const_vxx_1_1, 0))
-        self.connect((self.blocks_null_source_0, 0), (self.blocks_add_xx_0, 1))
+        self.connect((self.low_pass_filter_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.blocks_null_sink_0, 3))
+        self.connect((self.low_pass_filter_0_0, 0), (self.blocks_file_sink_0_0, 0))
         self.connect((self.low_pass_filter_0_0, 0), (self.blocks_null_sink_0, 2))
         self.connect((self.low_pass_filter_1, 0), (self.blocks_multiply_const_vxx_3, 0))
         self.connect((self.low_pass_filter_1_0, 0), (self.blocks_multiply_const_vxx_3_0, 0))
@@ -391,14 +400,12 @@ class Lab0(gr.top_block, Qt.QWidget):
 
     def set_variable_y_freq(self, variable_y_freq):
         self.variable_y_freq = variable_y_freq
-        self.analog_sig_source_x_0_0.set_frequency(self.variable_y_freq)
 
     def get_variable_x_freq(self):
         return self.variable_x_freq
 
     def set_variable_x_freq(self, variable_x_freq):
         self.variable_x_freq = variable_x_freq
-        self.analog_sig_source_x_0.set_frequency(self.variable_x_freq)
 
     def get_variable_m(self):
         return self.variable_m
@@ -420,8 +427,6 @@ class Lab0(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
-        self.analog_sig_source_x_0_0.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0_0_0.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0_0_1.set_sampling_freq(self.samp_rate)
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, self.emitter_cutoff_LP, self.emitter_transition_LP, window.WIN_HAMMING, 6.76))
@@ -429,8 +434,8 @@ class Lab0(gr.top_block, Qt.QWidget):
         self.low_pass_filter_1.set_taps(firdes.low_pass(1, self.samp_rate, self.emitter_cutoff_LP, self.emitter_transition_LP, window.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0.set_taps(firdes.low_pass(1, self.samp_rate, self.emitter_cutoff_LP, self.emitter_transition_LP, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_0_0.set_frequency_range(0, self.samp_rate)
-        self.qtgui_time_sink_x_0_0.set_samp_rate(self.samp_rate)
         self.qtgui_freq_sink_x_1.set_frequency_range(0, self.samp_rate)
+        self.qtgui_time_sink_x_0_0.set_samp_rate(self.samp_rate)
 
     def get_receiver_power_amplifier_a3(self):
         return self.receiver_power_amplifier_a3
