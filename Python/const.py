@@ -1,0 +1,256 @@
+import numpy as np
+from sympy import *
+from numba import njit, prange
+
+gray_map = np.array([0, 1, 3, 2], dtype=np.int64)
+#inv_gray_map = {0:0, 1:1, 3:2, 2:3}
+pilot_cycle  = 12
+
+qpsk_pilot   = np.array([ ( int(i % 2)*2 -1 )/sqrt(2) for i in range(pilot_cycle) ])
+
+qam16_norm      = 1#float(sqrt(10))#abs( 3 + 3*I )
+qam16_levels    = np.array([-3, -1, 1, 3], dtype=float)/qam16_norm
+max_16qam_level = max(abs(qam16_levels))
+qam16_pilot     = np.array([ qam16_levels[int(i % 2)*3] for i in range(pilot_cycle) ])
+
+def modulate(data,mode,pilot=True):
+
+    if mode == '16QAM':
+        return mod_qam_16(data,pilot)
+    
+    if mode == 'QPSK':
+        return mod_qpsk(data,pilot)
+
+def add_pilot(data,mode):
+
+    if mode == '16QAM':
+        return np.concatenate((qam16_pilot,data))
+    
+    if mode == 'QPSK':
+        return np.concatenate((qpsk_pilot,data))
+
+def mod_qpsk(data,pilot=True):
+
+    I_arr = []
+    Q_arr = []
+    
+    for i in range(0, len(data),2):
+        
+        b1 = int(data[i])
+        b2 = int(data[i+1])
+
+        k = gray_map[2*b2 +b1]
+
+        s = exp( np.pi*0.5*I*(k+0.5) )
+
+        I_arr.append(re(s))
+        Q_arr.append(im(s))
+
+    if pilot:
+        I_arr = add_pilot(I_arr,'QPSK')
+        Q_arr = add_pilot(Q_arr,'QPSK')
+    
+    return I_arr,Q_arr
+
+def mod_qam_16(data,pilot=True):
+
+    assert len(data) % 4 == 0
+
+    I_arr = []
+    Q_arr = []
+    
+
+    for i in range(0,len(data),4):
+        
+        b1, b2, b3, b4 = map(int, data[i:i+4])   # b1,b2 -> Q ; b3,b4 -> I (your convention)
+
+        q_s  = qam16_levels[
+                gray_map[b1*2 + b2]
+            ]
+        i_s  = qam16_levels[
+                gray_map[b3*2 + b4]
+        ]
+
+        I_arr.append(i_s)
+        Q_arr.append(q_s)
+    
+    if pilot:
+        I_arr = add_pilot(I_arr,'16QAM')
+        Q_arr = add_pilot(Q_arr,'16QAM')
+
+    return I_arr,Q_arr
+
+def demodulate(I_arr,Q_arr,mode):
+
+    if mode == '16QAM':
+        return np.array(demod_qam_16(I_arr,Q_arr), dtype=int)
+    
+    elif mode == 'QPSK':
+        return demod_qpsk(I_arr,Q_arr)
+
+    else:
+        print('Not Implemented')
+        return None
+
+def demod_qpsk(I_arr,Q_arr):
+
+
+    bitstream = []
+
+    length = min( len(I_arr),len(Q_arr) )
+    #bitstream = np.empty(lenght * 4, dtype=np.int64)
+
+    for i in range(length):
+
+        b0 = int(I_arr[i]*-1 + 1)
+        b1 = int(Q_arr[i]*-1 + 1)
+
+        bitstream += [b0,b1]
+
+    return bitstream
+        
+
+@njit(parallel=True)
+def demod_qam_16(I_arr,Q_arr):
+
+    n = min(len(I_arr),len(Q_arr))
+    bitstream = np.empty(n * 4, dtype=np.int64)
+
+    for idx in prange(n):  # <-- parallel loop
+    
+        I_idx = I_arr[idx]
+        Q_idx = Q_arr[idx]
+        
+        i_bin = gray_map[int(I_idx)]
+        q_bin = gray_map[int(Q_idx)]
+        
+        b1 = (q_bin >> 1) & 1
+        b2 = q_bin & 1
+        b3 = (i_bin >> 1) & 1
+        b4 = i_bin & 1
+        
+        base_idx = idx * 4
+        bitstream[base_idx]     = b1
+        bitstream[base_idx + 1] = b2
+        bitstream[base_idx + 2] = b3
+        bitstream[base_idx + 3] = b4
+    
+    return bitstream
+
+
+#signal already quantized
+#f_ratio = f_gnu/f_bitstream
+#ideally this would calculate f_ratio 
+
+def extract_data(sig,f_ratio,mode ):
+
+    data    = []
+    pos_arr = []
+
+    #find tone
+    pos = 0
+    #for s in sig:
+    #    if s <= 0:
+    #        break 
+    #    pos += 1
+    
+
+    
+    i = 3709# int((pos_end + pos)/2)   # middle of peak
+    #print((pos_end - pos)/2)
+    while(i < len(sig)):
+
+        data.append(sig[i])
+        pos_arr.append(i)
+        i += f_ratio
+    
+    return data#,pos_arr
+
+def normalize_out(data):
+
+    m = np.max(abs(data))
+
+    return data / np.float64(m)
+
+def remove_pilot(data):
+
+    return data[pilot_cycle:]
+
+def quantizer(data,bits):
+
+    if not isinstance(data, np.ndarray) or not np.issubdtype(data.dtype, np.number):
+        print(f"[Warning] Input had dtype={getattr(data, 'dtype', type(data))}, converting to float64.")
+        data = np.asarray(data, dtype=np.float64)
+
+    if bits == 1:
+        return quantizer_1bit(data)
+    
+    elif bits == 2:
+        return quantizer_2bit(data)
+    
+    else:
+        print('Warning: Not Implemented')
+        return None
+
+#def demod_qpsk(I_arr,Q_arr):
+@njit(parallel=True)
+def quantizer_1bit(data):
+
+    n = data.size
+    idxs = np.empty(n, dtype=np.int32)
+    for i in prange(n):
+        
+        idxs[i] = int(data[i]>-0.1)
+
+    return idxs
+
+#def demod_qpsk(I_arr,Q_arr):
+@njit(parallel=True)
+def quantizer_2bit(data,norm=qam16_norm):
+
+    l0 = -3.0 
+    l1 = -1.0 
+    l2 =  1.0 
+    l3 =  3.0 
+
+    t0 = 0.5 * (l0 + l1)  # midpoint between level 0 and 1
+    t1 = 0.5 * (l1 + l2)  # midpoint between level 1 and 2
+    t2 = 0.5 * (l2 + l3)  # midpoint between level 2 and 3
+
+    data *= 3
+    #data -= 3
+    n = data.size
+    idxs = np.empty(n, dtype=np.int32)
+
+    for i in prange(n):
+        x = data[i]
+        # assign using thresholds
+        if x < t0:
+            idxs[i] = 0
+        elif x < t1:
+            idxs[i] = 1
+        elif x < t2:
+            idxs[i] = 2
+        else:
+            idxs[i] = 3
+
+    return idxs
+    data = np.asarray(data)
+    arr_unscaled = data * norm
+    
+    # Vectorized computation of nearest level
+    # Compute distance to each QAM16 level and pick argmin along axis=1
+    idxs = np.argmin(np.abs(arr_unscaled[..., None] - qam16_levels), axis=-1)
+    
+    return idxs.astype(int)
+
+def upsample(symbols,n_rep):
+
+    symb = np.zeros(len(symbols)*n_rep)
+    pos = 0
+    for s in symbols:
+        for _ in range(n_rep):
+            symb[pos] = s
+            pos += 1
+
+    return symb
