@@ -1,5 +1,6 @@
 import numpy as np
 from const import *
+import matplotlib.pyplot as plt  
 
 FileFolder = 'GnuRadio/FileInput/'
 n_points   = int(3e6)
@@ -33,7 +34,11 @@ if gen_qam16:
     I_arr = upsample(I_arr,rep)
     Q_arr = upsample(Q_arr,rep)
     
+    plt.plot(I_arr)
+    plt.plot(Q_arr)
+    plt.show()
     np.array(I_arr,dtype=np.float32).tofile(FileFolder+'I_16_qam.data')
     np.array(Q_arr,dtype=np.float32).tofile(FileFolder+'Q_16_qam.data')
+
 
 data = np.array(data,dtype=np.float32).tofile('Python/bits.data')

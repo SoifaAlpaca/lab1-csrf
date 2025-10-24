@@ -1,0 +1,118 @@
+
+\section{Digital Communication}
+
+For this section two Quadrature Amplitude Modulation (QAM) techniques were used, \textbf{Quadrature Phase-Shift Keying (QPSK)} and \textbf{16-QAM}. This process involved generating a random stream of bits, modulating them into \textbf{QPSK} and \textbf{16-QAM} symbols and simulating their transmission through GNU Radio. In the simulation the effects of non-linear Power Amplifier (PA) and Low Noise Amplifier (LNA) were simulated as well as the noise of a Additive White Gaussian Noise (AWGN) channel.
+
+\subsection{Digital Modulation}
+
+\label{ssec:modulations}
+\
+textbf{QPSK} places four equally spaced points on the unit circle:
+\[
+s_k = e^{j\frac{\pi}{2}\left(k+\tfrac12\right)}, \qquad k\in\{0,1,2,3\}.
+\]
+
+Figure \ref{fig:QPSK_const}, shows the mapping in the cartesian plane.
+
+
+The mapper groups the encoded bit stream into two-bit tuples $(b_1,b_0)$, converts each tuple to an integer index $(k =2b_1+b_0)$ and outputs \(s_k\).
+
+The theoretical bit-error probability for QPSK in an AWGN channel is given by Equation \ref{eq:probErrQPSK}.
+\begin{equation}
+  P_b^{\text{QPSK}} = Q\left(\sqrt{2\frac{E_b}{N_0}}\right)\text{\cite{Work_TAC2025}}
+  \label{eq:probErrQPSK}
+\end{equation}
+
+For \textbf{QPSK}, demodulation is performed by simply de-mapping the bit values.
+
+
+With \textbf{16-QAM} a $4\times4$ square constellation was used. What changes comparing to the previous mapping approach is the fact that the amplitude also changes and for this specific mapping the phase and amplitude will not change consistently. The symbol position in the cartesian frame will be:
+\[
+I,R \in \{\pm3,\;\pm1\}
+\]
+
+For \textbf{16-QAM} the theoretical \textbf{BER} for an AWGN channel with gray mapping is given by Equation \ref{eq:probErr16QAM}.
+
+\begin{equation}
+  P_b^{\text{16QAM}} \approx \frac{3}{4}\cdot Q\left(\sqrt{\frac{4}{5}\frac{E_b}{N_0}}\right)\text{\cite{Work_TAC2025}}
+  \label{eq:probErr16QAM}
+\end{equation}
+
+
+The constellation points are labelled with \emph{Gray coding}, thus every nearest neighbour differs in \emph{exactly one} bit, this will minimize \textbf{BER}, since the most likely symbol error produces only one wrong bit. Figure \ref{fig:16QAM_const}, shows how the codes are mapped.
+
+
+\begin{comment}
+    
+\begin{figure}[H]
+    \centering
+    \includegraphics*[width=0.8\textwidth]{Images/Const_QPSK.png}
+    \caption{QPSK Constellation}
+    \label{fig:QPSK_const}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics*[width=0.8\textwidth]{Images/Const_16QAM.png}
+    \caption{16-QAM Constellation}
+    \label{fig:16qam_const}
+\end{figure}
+
+\end{comment}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/Const_QPSK.png}
+        \caption{QPSK Constellation.}
+        \label{fig:QPSK_const}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/Const_16QAM.png}
+        \caption{16-QAM Constellation.}
+        \label{fig:16QAM_const}
+    \end{subfigure}
+    \caption{Digital Modulation Constellations.}
+    \label{fig:Const}
+\end{figure}
+
+\subsection{GNU Radio Implementation}
+
+
+\subsection{Performance Analysis}
+
+The primary goal was to evaluate the system's performance by measuring the Bit Error Rate (BER) as a function of the Signal-to-Noise Ratio (SNR) in an AWGN channel.
+
+A random bitstream of $3 \times 10^6$ bits was generated using \texttt{Gen\_symbs.py} \textcolor{red}{Meter cite aos anexos?}. This stream was modulated and fed into the GNU Radio simulation. At the receiver, the \texttt{Read\_Output.py} script was used to read the output files and calculate BER.
+
+Finally with BER values were plotted against the theoretical performance curves, Equations \ref{eq:probErrQPSK} and \ref{eq:probErr16QAM}, for both modulation schemes. As shown in Figure \ref{fig:BER_SNR_a3_0}, in this figure there were no non-linear effects simulated.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics*[width=0.9\textwidth]{Images/BER_SNR_a3_0.png}
+    \caption{BER vs $E_b/N_0$}
+    \label{fig:BER_SNR_a3_0}
+\end{figure}
+
+The results in Figure \ref{fig:BER_SNR_a3_0} clearly validate our simulation.
+
+\textbf{QPSK} BER points (shown in orange) align almost perfectly with the theoretical QPSK performance curve. This confirms that the simulation chain, including the noise model and demodulator, is functioning correctly.
+
+\textbf{16-QAM} similarly, the simulated 16-QAM data (in Blue) closely follows its theoretical curve.
+
+
+\begin{comment}
+    
+\subsubsection{Results Discussion}
+
+\begin{itemize}
+    \item \textbf{QPSK:} The simulated BER points (shown in blue) align almost perfectly with the theoretical QPSK performance curve. This confirms that the simulation chain, including the noise model and demodulator, is functioning correctly.
+
+    \item \textbf{16-QAM:} Similarly, the simulated 16-QAM data (in orange) closely follows its theoretical curve.
+
+    \item \textbf{Performance Trade-off:} The graph clearly illustrates the fundamental trade-off between data rate and noise immunity. To achieve the same Bit Error Rate, 16-QAM requires a significantly higher SNR than QPSK. For example, to achieve a BER of $10^{-3}$ (0.1\%), QPSK requires an SNR of approximately 7 dB, while 16-QAM requires approximately 10.5 dB. This demonstrates that while 16-QAM can transmit twice the amount of data per symbol, it is much more susceptible to noise.
+\end{itemize}
+
+\end{comment}
