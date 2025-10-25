@@ -1,1 +1,11 @@
 \section{Conclusions}
+
+This laboratory work successfully demonstrated the complete workflow of RF system analysis, progressing from high-level simulation to circuit-level modeling and practical hardware characterization.
+
+System-level simulations in GNU Radio validated the architectures for both analog (AM) and digital (QPSK) communication links. The QPSK model provided insight into non-linear amplifier effects (IMD3, P1dB). This was complemented by a circuit-level SPICE simulation, which successfully modeled a JFET-based AM modulator . The SPICE results confirmed the theory, clearly showing the \SI{48}{\kilo\hertz} carrier and the corresponding sidebands in the frequency domain .
+
+The core practical objective was the verification of an L-Match impedance matching network. The design to match \SI{200}{\ohm} to \SI{50}{\ohm} at \SI{490}{\kilo\hertz} was validated across three domains. The theoretical calculations ($L=\SI{28.13}{\micro\henry}$, $C=\SI{2.813}{\nano\farad}$) and simulation ($S_{11} \approx \SI{-58}{\deci\bel}$) were confirmed by VNA measurements . The practical measurement showed exceptionally strong agreement, achieving a measured $S_{11}$ of $\mathbf{\SI{-46.652}{\deci\bel}}$ at $\mathbf{\SI{490.847}{\kilo\hertz}}$, empirically validating the L-Match theory .
+
+Finally, a complete low-IF RFFE receiver was assembled. The theoretical cascade analysis predicted a total gain of $\mathbf{\SI{23.5}{\decibel}}$ and a low system Noise Figure of $\mathbf{\SI{\approx 2.01}{\decibel}}$, dominated by the LNA . The system successfully received, downconverted, and demodulated a live, off-the-air FM radio broadcast, confirming the practical application of the low-IF architecture .
+
+All objectives of the lab were met, and the strong correlation between theoretical, simulated, and measured results confirms a comprehensive understanding of the RF systems and circuits analyzed.
