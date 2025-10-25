@@ -107,7 +107,7 @@ The total gain $G_{total}$ is the sum of the gains in dB:
     G_{total} = G_1 + G_2 = \SI{32}{\decibel} - \SI{8.5}{\decibel} = \SI{23.5}{\decibel}
 \end{equation}
 
-For the Noise Figure, the Friis formula requires linear values (power ratios), not dB.
+For the Noise Figure, the Friis equation requires linear values (power ratios), not dB.
 \begin{equation}
     NF_{\text{total, linear}} = NF_{1, \text{linear}} + \frac{NF_{2, \text{linear}} - 1}{G_{1, \text{linear}}}
 \end{equation}
@@ -119,7 +119,7 @@ First, the values were converted from dB:
     \item $NF_2 \text{ (linear)} = 10^{(8.5 / 10)} \approx 7.08$
 \end{itemize}
 
-Plugging these into the formula:
+Plugging these into the equation gives:
 \begin{equation}
     NF_{\text{total, linear}} = 1.585 + \frac{7.08 - 1}{1585} = 1.585 + 0.0038 \approx 1.589
 \end{equation}
