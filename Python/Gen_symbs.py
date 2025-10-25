@@ -15,7 +15,7 @@ print(rep)
 #Create random data
 data = np.random.randint(0, 2, n_points).astype(np.uint8)
 
-gen_qpsk = False#True
+gen_qpsk = True
 
 if gen_qpsk:
     
@@ -34,9 +34,9 @@ if gen_qam16:
     I_arr = upsample(I_arr,rep)
     Q_arr = upsample(Q_arr,rep)
     
-    plt.plot(I_arr)
-    plt.plot(Q_arr)
-    plt.show()
+    #plt.plot(I_arr)
+    #plt.plot(Q_arr)
+    #plt.show()
     np.array(I_arr,dtype=np.float32).tofile(FileFolder+'I_16_qam.data')
     np.array(Q_arr,dtype=np.float32).tofile(FileFolder+'Q_16_qam.data')
 
