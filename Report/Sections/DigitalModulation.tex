@@ -163,18 +163,18 @@ then the output of these amplifiers can be described as \(y(t) = Amp(x(t))\), th
 taylor series' the output can be approximated to the result fo Equation \ref{eq:Taylor_series_approx}.
 
 \begin{equation}
-    y(t) = \sum_{n=1}^{\infty} \frac{\partial^n Amp(x_0)}{\partial x^n \cdot n} \cdot (x - x_0)^n \leftrightarrow y(t) \approx a_1x(t) + a_2{x(t)}^2 + a_3{x(t)}^3
+    y(t) = \sum_{n=0}^{\infty} \frac{\partial^n Amp(x_0)}{\partial x^n \cdot n!} \cdot (x - x_0)^n \leftrightarrow y(t) \approx a_1x(t) + a_2{x(t)}^2 + a_3{x(t)}^3
     \label{eq:Taylor_series_approx}
 \end{equation}
 
-Where \(x_0\) is the dc operating point voltage of the input, was set to 0 to 
-simplify calculations, \(a_n\) is the value of the nth derivative in respect to 
-\(x(t)\) evaluated at \(x(t) = 0\) divided by the number of derivates taken.
+Where \(x_0\) is the dc operating point voltage of the input, was set to 0 to simplify calculations, \(a_n\) is the value of the nth derivative with respect to \(x(t)\) evaluated at \(x(t) = 0\) divided by the number of derivatives taken.
+
+The second-order nonlinearity, the second derivative, will produce a tone with double the frequency of the fundamental, causing harmonic distortion. However the most important effect is the third order effect, which has effects on the third harmonic as well as in the fundamental, this effect is seen as a compression of the signal.   
 
 \paragraph{}
 To simplify the GNU Radio schematic only the 3 higher order Taylor series' components were 
-used, these are also the most influencial components in the real circuit. The GNU Radio 
-circuit is shown in Figure \ref{fig:PA_non_lin}.
+used, these are also the most influential components in the real circuit. The GNU Radio 
+circuit is shown in Figure \ref{fig:PA_non_lin}. Because of this model limitations, when the third order effects are larger than the linear gain, the signal will expand instead of compress, and will instead have an opposite phase.
 
 \begin{figure}[H]
     \centering
@@ -182,7 +182,6 @@ circuit is shown in Figure \ref{fig:PA_non_lin}.
     \caption{GNU Radio PA non Linear}
     \label{fig:PA_non_lin}
 \end{figure}
-
 
 \subsection{Performance Analysis}
 

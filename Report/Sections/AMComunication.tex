@@ -2,6 +2,66 @@
 
 \subsection{Architecture}
 
+The AM communication link was implemented in GNU Radio, consisting of three main parts: a transmitter, a channel, and a receiver.
+
+The transmitter, shown in Figure \ref{fig:GNU_am_mod}, implements a standard Amplitude Modulation (AM) modulator. It takes a baseband message signal $m(t)$, in this case either a single tone or an audio file, adds a DC offset, this is to visualize the carrier frequency, and then multiplies the result by a carrier wave $\cos(2\pi f_c t)$. The final modulated signal is Equation \ref{eq:S_am}.
+
+\begin{equation}
+    s_{AM}(t) = [1 + m(t)] \cos(2\pi f_c t)
+    \label{eq:S_am}
+\end{equation}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics*[width=0.9\textwidth]{Images/GNU_AM_Mod.png}
+    \caption{GNU Radio AM Modulator}
+    \label{fig:GNU_am_mod}
+\end{figure}
+
+The modulated signal is passed through an Additive White Gaussian Noise (AWGN) channel, as seen in Figure \ref{fig:gnu_am_channel}. This block simulates uncorrelated noise added to a signal during transmission.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics*[width=0.9\textwidth]{images/GNU_am_Channel.png}
+    \caption{GNU Radio AM Channel}
+    \label{fig:gnu_am_channel}
+\end{figure}
+
+For the AM link, a simple envelope detector, was implemented, Figure \ref{fig:gnu_am_demod}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics*[width=0.9\textwidth]{images/GNU_am_demod.png}
+    \caption{GNU Radio AM Demodulator}
+    \label{fig:gnu_am_demod}
+\end{figure}
+
+
 \subsection{Tests}
 
-single tone e musica
+\subsubsection{Single Tone}
+
+
+To validate the AM link under ideal conditions (no noise, attenuation, or non-linear effects, but including a linear gain of 7), a single-tone test was performed. The message signal, $m(t)$, was set to a cosine wave with a frequency of $f_m = 1$ kHz. Figure \ref{fig:gnu_am_sig_tone} displays the corresponding time domain result, showing the message signal $m(t)$ correctly modulating the carrier envelope.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics*[width=0.9\textwidth]{images/GNU_AM_a3_0.png}
+    \caption{GNU Radio Single tone Test.}
+    \label{fig:gnu_am_sig_tone}
+\end{figure}
+
+This non-linearity causes the amplifier to saturate, distorting the signal envelope, particularly at its peaks, as depicted in Figure \ref{fig:gnu_am_a3_effect}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics*[width=0.9\textwidth]{images/GNU_AM_a3.png}
+    \caption{GNU Radio AM $a_3$ effect.}
+    \label{fig:gnu_am_a3_effect}
+\end{figure}
+
+\subsubsection{Audio File Test}
+
+Finally, the single-tone source was replaced with a \texttt{.wav} audio file to test the link with a complex, broadband signal. The implementation successfully recovered the audio with no noticeable distortion effects, which was audible at the audio sink, confirming the end-to-end functionality of the simulated system.
+
