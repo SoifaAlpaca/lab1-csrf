@@ -92,14 +92,17 @@ from the original baseband to the channel frequency (Fc). These signals are modu
 with a \ang{90} angle phase shift between them [Fig.\ref{fig:IQMod_Diagram} and \ref{fig:GNU_IQMod}].
 This means the modulated signals are in quadrature with each other, thus allowing the 
 transmitter to transmit both signals at the same time without them interfering with each 
-other.
+other. 
+
 
 \begin{figure}[H]
     \centering
-    \includegraphics*[width=0.7\textwidth]{Images/IQ_Mod_Diagram.png}
+    \includegraphics*[width=0.6\textwidth]{Images/IQ_Mod_Diagram.png}
     \caption{IQ Modulator Block Diagram}
     \label{fig:IQMod_Diagram}
 \end{figure}
+
+It is important to note that for the GNU Radio implementation, Figure \ref{fig:GNU_IQMod}, a low pass filter is added at the input to remove the high frequency components of the \textbf{QAM} symbols.
 
 \begin{figure}[H]
     \centering
@@ -204,6 +207,24 @@ The results in Figure \ref{fig:BER_SNR_a3_0} clearly validate our simulation.
 
 \textbf{16-QAM} similarly, the simulated 16-QAM data (in Blue) closely follows its theoretical curve.
 
+\subsubsection{Impact of Non-Linear Amplification}
+
+To investigate the impact of the non-linear PA discussed in Section \ref{ssec:nonideal}, a second set of simulations was performed. In this analysis, no noise was added.
+
+The results, presented in Figure \ref{fig:BER_a3}, plot the simulated BER as a function of $a_3$.
+
+The \textbf{QPSK} modulation scheme was not included in this specific test. \textbf{QPSK} module is constant, meaning all its constellation points lie on a circle and share the same amplitude, as seen in Figure \ref{fig:QPSK_const}. Since the $a_3$ non-linearity primarily introduces amplitude compression, it affects all QPSK symbols in the same way. This preserves the crucial \emph{phase} relationship between them, and thus the receiver can still correctly demodulate the signal with no impact on BER.
+
+Therefore, this analysis focuses on \textbf{16-QAM}, which relies on multiple amplitude levels and is sensitive to this type of distortion.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics*[width=0.9\textwidth]{Images/BER_a3.png}
+    \caption{BER vs $a_3$}
+    \label{fig:BER_a3}
+\end{figure}
+
+The orange vertical line marks the $a_3$ value for $\SI{1}{\decibel}$, where no errors occurred.
 
 \begin{comment}
     

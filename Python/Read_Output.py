@@ -19,18 +19,18 @@ if qam16:
 
     # Quantize, data points 
 
-    norm_out_I = out_I#normalize_out(out_I)
-    norm_out_Q = out_Q#normalize_out(out_Q)
+    norm_out_I = normalize_out(out_I)
+    norm_out_Q = normalize_out(out_Q)
 
     bit_I = quantizer(norm_out_I,bits=2)
     bit_Q = quantizer(norm_out_Q,bits=2)
 
-    plt.plot(norm_out_I[3700:4200])
-    plt.plot(norm_out_Q[3700:4200])
-    plt.plot(bit_I[3700:4200])
-    plt.plot(bit_Q[3700:4200])
+    #plt.plot(norm_out_I[3700:4200])
+    #plt.plot(norm_out_Q[3700:4200])
+    #plt.plot(bit_I[3700:4200])
+    #plt.plot(bit_Q[3700:4200])
 
-    plt.show()
+    #plt.show()
     
     bit_I = remove_pilot(extract_data(bit_I,19,'16QAM'))
     bit_Q = remove_pilot(extract_data(bit_Q,19,'16QAM'))

@@ -42,3 +42,25 @@ plt.xlim(-7,17)
 plt.ylim(1e-7, 1)
 
 plt.show()
+
+
+# a_3
+
+a_3_arr_16qam = np.array([ 0.0161111,0.0175,0.018,0.02,0.025, 0.03,0.04,0.05 ,0.06])
+
+Pe_arr_16qam  = np.array([0,6.666666666666667e-05,0.0002666666666666667,0.027566666666666666,1.4691,7.955,12.505066666666666,12.505066666666666,12.784133333333333]) / 100
+
+# Plot
+plt.figure(figsize=(9, 6))
+
+plt.semilogy(a_3_arr_16qam, Pe_arr_16qam, 'o--',color=Blue, label='16QAM')
+
+plt.axvline(x=0.0161111, color=Orange, linestyle='--', linewidth=1.5, label=r'$1$ dB')
+# Formatting
+plt.grid(True, which='both', linestyle=':', linewidth=0.7)
+plt.xlabel(r'$a_3$', fontsize=12)
+plt.ylabel('Bit Error Rate (BER)', fontsize=12)
+plt.title(r'BER vs $a_3$', fontsize=14)
+plt.legend(loc='lower right', fontsize=10)
+
+plt.show()
