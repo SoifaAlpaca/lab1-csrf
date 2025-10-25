@@ -1,0 +1,19 @@
+* Qucs 25.2.99  /Users/franciscosadacosta/Documents/GitHub/lab1-csrf/Noise.sch
+B_OP1 vout 0 V = 1E6*V(_net2,_net0)*u(15-1E6*V(_net2,_net0))*u(1E6*V(_net2,_net0)-(-15))+15*u(1E6*V(_net2,_net0)-15)+(-15)*u((-15)-1E6*V(_net2,_net0))
+R2 _net1 _net2  1K tc1=0.0 tc2=0.0 
+R3 _net0 vout  1K tc1=0.0 tc2=0.0 
+R4 0 _net0  1K tc1=0.0 tc2=0.0 
+V2 _net1 0 DC 0 SIN(0 1 1K 0 0 0) AC 1 ACPHASE 0
+V3 _net3 0 DC 0 AC 0 TRNOISE(20N 0.5N 0 0 0  0 0) 
+R5 _net3 _net2  1K tc1=0.0 tc2=0.0 
+
+.control
+
+tran 5.02513e-06 0.001 0 
+write spice4qucs.tr1.plot v(vout)
+destroy all
+reset
+
+exit
+.endc
+.END
